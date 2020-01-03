@@ -1,0 +1,8 @@
+.idea
+composer.lock
+*.log
+*.uploads
+*.upload
+/yxt_admin/public/uploads/
+/yxt_admin/public/upload/
+
