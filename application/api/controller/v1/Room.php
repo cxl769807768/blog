@@ -28,7 +28,9 @@ class Room extends Common
                 $where['name'] = ['like', "%" . $name . "%"];
                 $order = '';
             }
-
+            if(!in_array('admin',$this->admin_roles) && $this->scene == "admin"){
+                $where['role_id'] = $this->admin_roles[0];
+            }
             $phone = $this->request->get('phone', '');
             if (!empty($phone)) {
                 $where['phone'] = ['=', $phone];
@@ -89,6 +91,16 @@ class Room extends Common
             }
 
             $data['cover'] = str_replace($this->request->domain(), '', $data['cover']);
+            $data['role_id'] = in_array('admin',$this->admin_roles) ? 1 : $this->admin_roles[0];
+            if(in_array('admin',$this->admin_roles)){
+                $data['vid'] = 0;
+            }else{
+                $vid = model("vendor")->where('role_id',$this->admin_roles[0])->value('id');
+                if(empty($vid)){
+                    $this -> return_msg(0, '请先添加商家信息');
+                }
+                $data['vid'] = $vid;
+            }
 
             $temp = [];
             foreach ($data['slideshow'] as $key => $value) {

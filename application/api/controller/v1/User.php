@@ -50,8 +50,7 @@ class User extends Common
             }
             $roleRules = AuthRule::cateMerge($rules,'id','pid',0);
         }
-            
-        
+
         $return = [
             'name'=> $this->session['username'],
             'avatar'=> !empty($this->session['avatar']) ? $this->request->domain().$this->session['avatar'] : '',

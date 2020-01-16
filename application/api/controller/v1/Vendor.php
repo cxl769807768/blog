@@ -28,7 +28,9 @@ class Vendor extends Common
                 $where['name'] = ['like', "%" . $name . "%"];
                 $order = '';
             }
-
+            if(!in_array('admin',$this->admin_roles) && $this->scene == "admin"){
+                $where['role_id'] = $this->admin_roles[0];
+            }
             $phone = $this->request->get('phone', '');
             if (!empty($phone)) {
                 $where['phone'] = ['=', $phone];
@@ -87,6 +89,8 @@ class Vendor extends Common
             if(!$validate->check($data)){
                 $this->return_msg(0,$validate->getError());
             }
+
+            $data['role_id'] = in_array('admin',$this->admin_roles) ? 1 : $this->admin_roles[0];
 
             $data['cover'] = str_replace($this->request->domain(), '', $data['cover']);
 
