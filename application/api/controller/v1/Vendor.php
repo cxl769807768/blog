@@ -4,6 +4,7 @@ namespace app\api\controller\v1;
 
 use app\api\Controller\Common;
 use think\Request;
+use think\Loader;
 
 class Vendor extends Common
 {
@@ -82,47 +83,49 @@ class Vendor extends Common
     {
         if (strtolower($this->request->method()) == 'post') {
             $data = $this->request->post();
-            if (empty($data['username'])) {
-                $this->return_msg('400', '用户名不能为空');
+            $validate = Loader::validate('Vendor');
+            if(!$validate->check($data)){
+                $this->return_msg(0,$validate->getError());
             }
-            if (empty($data['password'])) {
-                $this->return_msg('400', '密码不能为空');
-            }
-            if (empty($data['checkPassword'])) {
-                $this->return_msg('400', '确认密码不能为空');
-            }
-            if ($data['password'] !==$data['checkPassword']) {
-                $this->return_msg('400', '密码与确认密码不一致');
-            }
-            if (empty($data['phone'])) {
-                $this->return_msg('400', '手机号不能为空');
-            }
-            if (empty($data['email'])) {
-                $this->return_msg('400', '邮箱不能为空');
-            }
-            if (empty($data['roles'])) {
-                $this->return_msg('400', '所属角色不能为空');
-            }
-            $data['avatar'] = str_replace($this->request->domain(), '', $data['avatar']);
-            $checkUsername = $this->check_username_exist($data['username'], 0);
-            if (!$checkUsername['status']) {
-                $this->return_msg('400', $checkUsername['info']);
-            }
-            $data['password'] = create_password($data['password']);
-            $res = model('AuthAdmin')->allowField(true)->save($data);
-            if ($res) {
 
-                $data['id'] = model('AuthAdmin')->id;
-                $setRoleAdmin= model('AuthRoleAdmin')->setRoleAdminByRole($data['roles'],model('AuthAdmin')->id);
-                if(!empty($setRoleAdmin)){
-                    $res = model('ImgManage')->save(['mod'=>'avatar', 'url'=>$data['avatar']]);
-                    if($res){
-                        $this->return_msg(200,'添加成功',$data);
-                    }else{
-                        $this->return_msg(400,'添加图片管理失败');
+            $data['cover'] = str_replace($this->request->domain(), '', $data['cover']);
+
+            $temp = [];
+            foreach ($data['slideshow'] as $key => $value) {
+                $temp[$key]['url'] = str_replace($this->request->domain(), '', $value);
+                $temp[$key]['mod'] = 'vendor_slideshow';
+            }
+            $data['slideshow'] = serialize(array_column($temp,'url'));
+            $res = model('Vendor')->allowField(true)->save($data);
+            if ($res) {
+                $insert_cover = model('ImgManage') -> save(['mod' => 'vendor_cover', 'url' => $data['cover']]);
+                if (empty($insert_cover)) {
+                    $this -> return_msg(0, '添加封面信息失败');
+                }
+                // 处理轮播上传的图片
+                $insert_slideshow = model('ImgManage') ->isUpdate(false)->saveAll($temp);
+                if (empty($insert_slideshow)) {
+                    $this -> return_msg(0, '添加图片管理轮播信息失败');
+                }
+                if (!empty($data['introduce'])) {
+                    $intr = [];
+                    $pattern = '/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg|\.jpeg|\.png]))[\'|\"].*?[\/]?>/i';
+                    preg_match_all($pattern, $data['introduce'], $resssss);
+                    if (!empty($resssss)) {
+                        foreach ($resssss[1] as $key => $value) {
+                            $intr[$key]['url'] = str_replace($this->request->domain(), '', $value);
+                            $intr[$key]['mod'] = 'vendor_introduce';
+                        }
+                        $insert_introduce = model('ImgManage') ->isUpdate(false)->saveAll($intr);
+                        if (empty($insert_introduce)) {
+                            $this -> return_msg(0, '添加图片管理商家介绍中的图片信息失败');
+                        }
                     }
-                }else{
-                    $this->return_msg(400,'添加admin与role关系失败');
+                }
+                if ($insert_cover && $insert_slideshow && $insert_introduce ) {
+                    $this -> return_msg(200, '添加信息完成', $data);
+                } else {
+                    $this -> return_msg(400, '添加信息失败', $data);
                 }
 
             } else {
@@ -164,7 +167,82 @@ class Vendor extends Common
      */
     public function update(Request $request, $id)
     {
-        //
+        if (strtolower($this->request->method()) == 'post') {
+            $data = $this->request->post();
+            $validate = Loader::validate('Vendor');
+            if(!$validate->check($data)){
+                $this->return_msg(0,$validate->getError());
+            }
+            $old = model('Vendor')->where('id',$id)->find()->toArray();
+            $data['cover'] = str_replace($this->request->domain(), '', $data['cover']);
+
+            $temp = [];
+            foreach ($data['slideshow'] as $key => $value) {
+                $temp[$key]['url'] = str_replace($this->request->domain(), '', $value);
+                $temp[$key]['mod'] = 'vendor_slideshow';
+            }
+            $data['slideshow'] = serialize(array_column($temp,'url'));
+            $res = model('Vendor')->isUpdate(true)->allowField(true)->save($data);
+            if ($res) {
+                if($old['cover']!==$data['cover']){
+                    model('ImgManage')->where(['mod'=>'vendor_cover', 'url'=>$old['cover']])->delete();
+                    $insert_cover = model('ImgManage') -> save(['mod' => 'vendor_cover', 'url' => $data['cover']]);
+                    if (empty($insert_cover)) {
+                        $this -> return_msg(0, '添加封面信息失败');
+                    }
+                }
+
+                // 处理轮播上传的图片
+                if($old['slideshow']!==$data['slideshow']){
+                    $insert_slideshow = model('ImgManage') ->isUpdate(false)->saveAll($temp);
+                    $oldSlideshow = unserialize($old['slideshow']);
+                    foreach ($oldSlideshow as $key => $val){
+                        model('ImgManage')->where(['mod'=>'vendor_slideshow', 'url'=>$val])->delete();
+                    }
+                    if (empty($insert_slideshow)) {
+                        $this -> return_msg(0, '添加图片管理轮播信息失败');
+                    }
+                }
+                // 介绍信息
+                $intr = '/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg|\.jpeg|\.png]))[\'|\"].*?[\/]?>/i';
+                preg_match_all($intr, $data['introduce'], $ress);
+                if (!empty($ress)) {
+                    // 判断数据库介绍的图片信息
+                    $shuju_intr = '/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg|\.jpeg|\.png]))[\'|\"].*?[\/]?>/i';
+                    preg_match_all($shuju_intr, $old['introduce'], $shu_ress);
+                    if (!empty($shu_ress)) {
+                        // 判断介绍中的图片是否一致
+                        $diff = array_diff($ress[1],$shu_ress[1]);
+                        if (!empty($diff)) {
+
+                            foreach ($shu_ress[1] as $key => $value) {
+                                model('ImgManage')->where(['mod'=>'vendor_introduce', 'url'=>str_replace($this->request->domain(), '', $value)])->delete();
+                            }
+                            $intro = [];
+                            foreach ($ress[1] as $key => $value) {  // 新增传递的信息
+                                $intro[$key]['url'] = str_replace($this->request->domain(), '', $value);
+                                $intro[$key]['mod'] = 'vendor_introduce';
+                            }
+                            model('ImgManage')->isUpdate(false)->saveAll($intro);
+                        }
+                    } else {  // 没有数据就添加传递的信息
+                        $intro = [];
+                        foreach ($ress[1] as $key => $value) {
+                            $intro[$key]['url'] = $value;
+                            $intro[$key]['mod'] = 'vendor_introduce';
+                        }
+                        model('ImgManage') ->isUpdate(false)->saveAll($intro);
+                    }
+                }
+
+                $this -> return_msg(200, '更新信息完成', $data);
+
+            } else {
+                $this->return_msg(400, '更新失败');
+            }
+        } else {
+            $this->return_msg(0, '请求方式不正确');
+        }
     }
 
     /**
@@ -175,6 +253,36 @@ class Vendor extends Common
      */
     public function delete($id)
     {
-        //
+        if (strtolower($this->request->method()) == 'post') {
+
+            $old = model('Vendor')->where('id', $id)->find()->toArray();
+            $res = model('Vendor')->where('id', $id)->delete();
+            if($res){
+
+                model('ImgManage')->where(['mod'=>'vendor_cover', 'url'=>$old["cover"]])->delete();
+                $oldSlideshow = unserialize($old['slideshow']);
+                foreach ($oldSlideshow as $key => $val){
+                    model('ImgManage')->where(['mod'=>'vendor_slideshow', 'url'=>$val])->delete();
+                }
+                // 删除数据库中的介绍的图片信息
+                if (!empty($old['introduce'])) {
+
+                    $shuju_intr = '/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg|\.jpeg|\.png]))[\'|\"].*?[\/]?>/i';
+                    preg_match_all($shuju_intr, $old['introduce'], $shu_ress);
+                    if (!empty($shu_ress)) {
+                        foreach ($shu_ress[1] as $key => $value) {
+
+                            model('ImgManage')->where(['mod'=>'vendor_introduce', 'url'=>str_replace($this->request->domain(), '', $value)])->delete();
+                        }
+                    }
+
+                }
+
+                $this -> return_msg(200, '删除信息成功');
+
+            }
+        }else{
+            $this->return_msg(0, '请求方式不正确');
+        }
     }
 }
