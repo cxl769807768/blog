@@ -25,13 +25,14 @@
         protected $admin_roles=[];
         public function __construct()
         {
-            
+
             //parent::__construct();
             $this->request    = Request::instance();
             $this->isAuthorized = $this->request->header('authorized') && strlen($this->request->header('authorized')) == 32;
             $this->authorized   = $this->isAuthorized ? $this->request->header('authorized') : NULL;
             $this->scene = empty($this->request->header('scene')) ? 'app': $this->request->header('scene');
             $this->webroot = ['http://www.blog.com','https://www.blog.com'];
+
             $this->_initialize();
         }
         /**

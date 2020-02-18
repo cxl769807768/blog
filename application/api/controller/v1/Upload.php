@@ -41,7 +41,7 @@ class Upload extends Common
         if(empty($file)){
             return $this->return_msg(400,'参数不能为空');
         }else {
-            if(in_array($type, array('shortVideo'))){
+            if(in_array($type, array('mood_video'))){
                 $video_path = $this->upload_file($file, $type);
                 $file = ROOT_PATH."public".DIRECTORY_SEPARATOR.trim($video_path,DIRECTORY_SEPARATOR);
 
@@ -116,7 +116,7 @@ class Upload extends Common
      */
     public function getCoverFromVedio($file){
         $mpeg = new Mpeg($file);
-        return $mpeg-> getVideoCover($type = "shortVideo",1);
+        return $mpeg-> getVideoCover($type = "mood_video",1);
     }
     /**
      * 显示指定的资源

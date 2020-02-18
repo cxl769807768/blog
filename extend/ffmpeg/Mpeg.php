@@ -30,15 +30,15 @@ class Mpeg
     }
 
     //获得视频文件的缩略图
-    public function getVideoCover($type = "shortVideo",$time)
+    public function getVideoCover($type = "mood_video",$time)
     {
         if (empty($time)) $time = '1';//默认截取第一秒第一帧
         $videoCover = date('YmdHis') . createRandomCode(6);
         $videoCoverName = $videoCover . '.jpg';//缩略图命名
         /**linux**/
-        //$to = DIRECTORY_SEPARATOR.trim(ROOT_PATH,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR."public".DIRECTORY_SEPARATOR."upload".DIRECTORY_SEPARATOR."thumbs".DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR.date('Ymd').DIRECTORY_SEPARATOR;
+        $to = DIRECTORY_SEPARATOR.trim(ROOT_PATH,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR."public".DIRECTORY_SEPARATOR."upload".DIRECTORY_SEPARATOR."thumbs".DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR.date('Ymd').DIRECTORY_SEPARATOR;
         /**windows**/
-        $to = ROOT_PATH."public".DIRECTORY_SEPARATOR."upload".DIRECTORY_SEPARATOR."thumbs".DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR.date('Ymd').DIRECTORY_SEPARATOR;
+//        $to = ROOT_PATH."public".DIRECTORY_SEPARATOR."upload".DIRECTORY_SEPARATOR."thumbs".DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR.date('Ymd').DIRECTORY_SEPARATOR;
         if (false === create_folders($to)) {
             return false;
         }
