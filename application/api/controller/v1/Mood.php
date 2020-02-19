@@ -128,12 +128,13 @@ class Mood extends Common
                         $this->return_msg(0, '添加图片管理轮播信息失败');
                     }
                 }elseif($data['type']==2) {
-                    $insert_cover = model('ImgManage')->save(['mod' => 'mood_video', 'url' => $data['cover']]);
-                    $insert_video = model('ImgManage')->save(['mod' => 'mood_video', 'url' => $data['video']]);
-
-                    if (empty($insert_cover)) {
-                        $this->return_msg(0, '添加视频封面信息失败');
+                    $arr = array($data['cover'],$data['video']);
+                    $insertVideo = [];
+                    foreach ($arr as $k => $v){
+                        $insertVideo[$k]['mod'] = 'mood_video';
+                        $insertVideo[$k]['url'] = $v;
                     }
+                    $insert_video = model('ImgManage')->isUpdate(false)->saveAll($insertVideo);
                     if (empty($insert_video)) {
                         $this->return_msg(0, '添加视频信息失败');
                     }
