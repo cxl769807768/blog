@@ -11,7 +11,7 @@
  Target Server Version : 50721
  File Encoding         : 65001
 
- Date: 20/03/2020 15:37:00
+ Date: 20/03/2020 16:43:02
 */
 
 SET NAMES utf8mb4;
@@ -211,16 +211,21 @@ CREATE TABLE `buy_order`  (
 DROP TABLE IF EXISTS `img_manage`;
 CREATE TABLE `img_manage`  (
   `id` int(8) NOT NULL AUTO_INCREMENT,
-  `mod` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '模块',
+  `mod` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '模块',
   `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '图片地址',
   `create_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of img_manage
 -- ----------------------------
 INSERT INTO `img_manage` VALUES (2, 'avatar', '/upload/thumbs/avatar/20200103/ec641f74ffddbb908e90150674abdcc9.jpg', '2020-01-03 15:36:46');
+INSERT INTO `img_manage` VALUES (3, 'product_cover', '/upload/thumbs/product_cover/20200320/e4669050d5c0aa608f6960828f8bd1ab.jpg', '2020-03-20 16:38:30');
+INSERT INTO `img_manage` VALUES (4, 'product_slideshow', '/upload/thumbs/product_slideshow/20200320/50da939b331542bafdeec449cc0d221e.jpg', '2020-03-20 16:38:30');
+INSERT INTO `img_manage` VALUES (5, 'product_slideshow', '/upload/thumbs/product_slideshow/20200320/ad2b62d9b3ca3a65ccabbd2272835382.jpg', '2020-03-20 16:38:30');
+INSERT INTO `img_manage` VALUES (6, 'product_slideshow', '/upload/thumbs/product_slideshow/20200320/02132145ddbc54e45a79b5bc144dfa19.jpg', '2020-03-20 16:38:30');
+INSERT INTO `img_manage` VALUES (7, 'product_introduce', '/upload/thumbs/product_introduce/20200320/18fa0d893388c1bfce6d409945bd2cc4.jpg', '2020-03-20 16:38:30');
 
 -- ----------------------------
 -- Table structure for money_log
@@ -247,7 +252,7 @@ DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product`  (
   `id` int(8) NOT NULL AUTO_INCREMENT,
   `name` varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '名称',
-  `cover` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '封面',
+  `cover` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '封面',
   `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '描述',
   `slideshow` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '轮播图',
   `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0禁用1正常',
@@ -257,7 +262,13 @@ CREATE TABLE `product`  (
   `create_time` datetime(0) NULL DEFAULT NULL,
   `update_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of product
+-- ----------------------------
+INSERT INTO `product` VALUES (1, '罗茨萝卜', '/upload/thumbs/product_cover/20200320/e4669050d5c0aa608f6960828f8bd1ab.jpg', '好甜的萝卜', 'a:3:{i:0;s:78:\"/upload/thumbs/product_slideshow/20200320/50da939b331542bafdeec449cc0d221e.jpg\";i:1;s:78:\"/upload/thumbs/product_slideshow/20200320/ad2b62d9b3ca3a65ccabbd2272835382.jpg\";i:2;s:78:\"/upload/thumbs/product_slideshow/20200320/02132145ddbc54e45a79b5bc144dfa19.jpg\";}', 1, 1, '18725074649', '<p>好甜的萝卜</p><p><img src=\"http://www.blog.com/upload/thumbs/product_introduce/20200320/18fa0d893388c1bfce6d409945bd2cc4.jpg\" alt=\"图像\"></p>', '2020-03-20 16:37:02', '2020-03-20 16:37:02');
+INSERT INTO `product` VALUES (2, '罗茨萝卜', '/upload/thumbs/product_cover/20200320/e4669050d5c0aa608f6960828f8bd1ab.jpg', '好甜的萝卜', 'a:3:{i:0;s:78:\"/upload/thumbs/product_slideshow/20200320/50da939b331542bafdeec449cc0d221e.jpg\";i:1;s:78:\"/upload/thumbs/product_slideshow/20200320/ad2b62d9b3ca3a65ccabbd2272835382.jpg\";i:2;s:78:\"/upload/thumbs/product_slideshow/20200320/02132145ddbc54e45a79b5bc144dfa19.jpg\";}', 1, 1, '18725074649', '<p>好甜的萝卜</p><p><img src=\"http://www.blog.com/upload/thumbs/product_introduce/20200320/18fa0d893388c1bfce6d409945bd2cc4.jpg\" alt=\"图像\"></p>', '2020-03-20 16:38:30', '2020-03-20 16:38:30');
 
 -- ----------------------------
 -- Table structure for purse
@@ -271,7 +282,12 @@ CREATE TABLE `purse`  (
   `create_time` datetime(0) NULL DEFAULT NULL,
   `update_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '钱包表' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '钱包表' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Records of purse
+-- ----------------------------
+INSERT INTO `purse` VALUES (1, 1, 0.00, 0, '2020-03-20 16:34:48', '2020-03-20 16:34:48');
 
 -- ----------------------------
 -- Table structure for relation_site_ad
@@ -311,15 +327,20 @@ INSERT INTO `toppic` VALUES (2, '资讯', 'documentation', 1, 0, 1, '2020-03-20 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
   `id` int(8) NOT NULL AUTO_INCREMENT,
-  `username` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户名',
+  `username` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户名',
   `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '手机号',
-  `password` varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '密码',
+  `password` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '密码',
   `token` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'token',
-  `exceed_time` timestamp(0) NULL DEFAULT NULL COMMENT 'token过期时间',
+  `exceed_time` int(11) NULL DEFAULT NULL COMMENT 'token过期时间',
   `create_time` datetime(0) NULL DEFAULT NULL,
   `update_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of user
+-- ----------------------------
+INSERT INTO `user` VALUES (1, '18725074649', '18725074649', '811441d3a138712b440ea470e8d5e638', '33eafb87bbdab5bdf10d90733ddf9ff4', 1584779688, '2020-03-20 16:34:48', '2020-03-20 16:34:48');
 
 -- ----------------------------
 -- Table structure for vendor_type
