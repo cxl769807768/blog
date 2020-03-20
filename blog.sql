@@ -11,7 +11,7 @@
  Target Server Version : 50721
  File Encoding         : 65001
 
- Date: 03/01/2020 15:53:45
+ Date: 20/03/2020 15:37:00
 */
 
 SET NAMES utf8mb4;
@@ -69,7 +69,7 @@ CREATE TABLE `auth_admin`  (
 -- ----------------------------
 -- Records of auth_admin
 -- ----------------------------
-INSERT INTO `auth_admin` VALUES (1, 'admin', '527a55627a0da3a336701601de60fea3', '18725074649', 'cxl483064@163.com', '/upload/thumbs/avatar/20190404/c57c729e7f2932e57fc3288edc8dc0fb.jpg', 'f6d754cc0ee1575605061a28e6c9d06f', 1580629294, NULL, NULL, 1);
+INSERT INTO `auth_admin` VALUES (1, 'admin', '527a55627a0da3a336701601de60fea3', '18725074649', 'cxl483064@163.com', '/upload/thumbs/avatar/20190404/c57c729e7f2932e57fc3288edc8dc0fb.jpg', 'f6d754cc0ee1575605061a28e6c9d06f', 1587278593, NULL, NULL, 1);
 INSERT INTO `auth_admin` VALUES (2, 'editor', 'f6d754cc0ee1575605061a28e6c9d06f', '18725074649', 'cxl@163.com', '/upload/thumbs/avatar/20190404/c57c729e7f2932e57fc3288edc8dc0fb.jpg', 'f6d754cc0ee1575605061a28e6c9d06f', 1571278481, NULL, NULL, 1);
 INSERT INTO `auth_admin` VALUES (3, 'test', '811441d3a138712b440ea470e8d5e638', '18725074648', 'cxl483064@163.com', '/upload/thumbs/avatar/20200103/ec641f74ffddbb908e90150674abdcc9.jpg', 'd3ca009c78c215c2f91d6440bf056e5e', 1580629264, '2020-01-03 15:36:46', '2020-01-03 10:09:10', 1);
 INSERT INTO `auth_admin` VALUES (4, 'test2', '811441d3a138712b440ea470e8d5e638', '18725074647', 'cxl483064@163.com', '/upload/thumbs/avatar/20200103/689939fd2c159883dc209c0dfb08bf2b.jpg', '', 0, '2020-01-03 11:03:37', '2020-01-03 10:52:14', 1);
@@ -150,12 +150,12 @@ CREATE TABLE `auth_rule`  (
   `hidden` tinyint(1) NOT NULL DEFAULT 0 COMMENT '左侧菜单 0==显示,1隐藏',
   `noCache` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1=不缓存，0=缓存',
   `alwaysShow` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1= 总显示,0=否 依据子菜单个数',
-  `redirect` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `redirect` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   `create_time` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `name`(`name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 43 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '规则表' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 47 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '规则表' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of auth_rule
@@ -167,6 +167,10 @@ INSERT INTO `auth_rule` VALUES (38, 'auth/role', '角色列表', 1, '', 1, 0, 'l
 INSERT INTO `auth_rule` VALUES (40, 'advert', '广告管理', 1, '', 0, 0, 'guide', '/advert', 'layout/Layout', 0, 1, 0, '', '2019-03-08 14:22:24', '2019-03-08 14:22:24');
 INSERT INTO `auth_rule` VALUES (41, 'advert/site', '广告位管理', 1, '', 40, 0, 'list', 'site', 'advert/site', 0, 1, 0, '', '2019-03-08 14:25:46', '2019-03-08 14:25:46');
 INSERT INTO `auth_rule` VALUES (42, 'advert/ad', '广告管理', 1, '', 40, 0, 'ad', 'ad', 'advert/ad', 0, 1, 0, '', '2019-03-08 14:27:10', '2019-03-13 17:24:21');
+INSERT INTO `auth_rule` VALUES (43, 'product', '产品管理', 1, '', 0, 0, 'peoples', '/product', 'layout/Layout', 0, 1, 0, '', '2020-03-20 14:01:03', '2020-03-20 14:01:03');
+INSERT INTO `auth_rule` VALUES (44, 'product/index', '产品列表', 1, '', 43, 0, 'list', 'index', 'product/index', 0, 1, 0, '', '2020-03-20 14:05:57', '2020-03-20 14:05:57');
+INSERT INTO `auth_rule` VALUES (45, 'toppic', '栏目管理', 1, '', 0, 0, 'tab', '/toppic', 'layout/Layout', 0, 1, 0, '', '2020-03-20 14:17:53', '2020-03-20 14:17:53');
+INSERT INTO `auth_rule` VALUES (46, 'toppic/index', '栏目列表', 1, '', 45, 0, 'list', 'index', 'toppic/index', 0, 1, 0, '', '2020-03-20 14:55:46', '2020-03-20 14:55:46');
 
 -- ----------------------------
 -- Table structure for buy_order
@@ -237,6 +241,25 @@ CREATE TABLE `money_log`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资金流水表' ROW_FORMAT = Compact;
 
 -- ----------------------------
+-- Table structure for product
+-- ----------------------------
+DROP TABLE IF EXISTS `product`;
+CREATE TABLE `product`  (
+  `id` int(8) NOT NULL AUTO_INCREMENT,
+  `name` varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '名称',
+  `cover` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '封面',
+  `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '描述',
+  `slideshow` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '轮播图',
+  `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0禁用1正常',
+  `tid` int(3) NOT NULL COMMENT '栏目id',
+  `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '手机号',
+  `introduce` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '介绍',
+  `create_time` datetime(0) NULL DEFAULT NULL,
+  `update_time` datetime(0) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
 -- Table structure for purse
 -- ----------------------------
 DROP TABLE IF EXISTS `purse`;
@@ -259,5 +282,62 @@ CREATE TABLE `relation_site_ad`  (
   `ad_id` int(8) NOT NULL COMMENT '广告id',
   PRIMARY KEY (`site_id`, `ad_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '广告位和广告的关系表' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for toppic
+-- ----------------------------
+DROP TABLE IF EXISTS `toppic`;
+CREATE TABLE `toppic`  (
+  `id` int(8) NOT NULL AUTO_INCREMENT,
+  `name` varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '名称',
+  `icon` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '图标',
+  `isShow` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0不显示1显示',
+  `pid` int(8) NOT NULL COMMENT '父级id',
+  `status` tinyint(1) NOT NULL COMMENT '0禁用1正常',
+  `create_time` datetime(0) NULL DEFAULT NULL,
+  `update_time` datetime(0) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of toppic
+-- ----------------------------
+INSERT INTO `toppic` VALUES (1, '农产品', 'tab', 1, 0, 1, '2020-03-20 14:59:47', '2020-03-20 14:59:47');
+INSERT INTO `toppic` VALUES (2, '资讯', 'documentation', 1, 0, 1, '2020-03-20 15:01:44', '2020-03-20 15:01:44');
+
+-- ----------------------------
+-- Table structure for user
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user`  (
+  `id` int(8) NOT NULL AUTO_INCREMENT,
+  `username` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户名',
+  `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '手机号',
+  `password` varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '密码',
+  `token` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'token',
+  `exceed_time` timestamp(0) NULL DEFAULT NULL COMMENT 'token过期时间',
+  `create_time` datetime(0) NULL DEFAULT NULL,
+  `update_time` datetime(0) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for vendor_type
+-- ----------------------------
+DROP TABLE IF EXISTS `vendor_type`;
+CREATE TABLE `vendor_type`  (
+  `id` int(8) NOT NULL AUTO_INCREMENT,
+  `name` varchar(15) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '名称',
+  `describe` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '描述',
+  `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0禁用1正常',
+  `create_time` datetime(0) NULL DEFAULT NULL,
+  `update_time` datetime(0) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of vendor_type
+-- ----------------------------
+INSERT INTO `vendor_type` VALUES (1, '农产品', '农产品', 1, '2020-03-20 14:46:08', '2020-03-20 14:46:08');
 
 SET FOREIGN_KEY_CHECKS = 1;

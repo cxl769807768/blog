@@ -69,7 +69,7 @@
                 }elseif($this->scene == 'app'){
                     //密码登录
                     if($this->request->param('password')){
-                        $check = $this->check_username_exist($this->request->param('username'), 1);
+                        $check = $this->check_username_exist($this->request->param('phone'), 1);
                         if ($check['status']) {
                             $res = $this->check_password($this->request->param('password'), $check['data']['password']);
                             if ($res['status']) {
@@ -80,7 +80,7 @@
                                     'token' => $token,
                                     'exceed_time' => $time_out,
                                 ];
-                                $result = model('User')->where('phone', $this->request->param('username'))->update($update);
+                                $result = model('User')->where('phone', $this->request->param('phone'))->update($update);
                                 if ($result) {
                                     unset($check['data']['password']);
                                     $return = array_merge($check['data'], $update);

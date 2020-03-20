@@ -1,7 +1,7 @@
 <?php
     namespace app\common\validate;
     use think\Validate;
-    class Vendor extends Validate{
+    class Product extends Validate{
         protected $rule = [
 	        'cover'        => 'require',
 	        'name'        => 'require',

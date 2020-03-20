@@ -99,9 +99,9 @@
         protected function filtration() {
             $controller = $this->request->param('controller');
             if($this->scene == 'admin'){
-                $filtrationArr = ['register', 'login', 'admin', 'code', 'upload', 'role', 'Provinces', 'Cities'];
+                $filtrationArr = ['register', 'login'];
             }elseif($this->scene == 'app'){
-                $filtrationArr = ['register','login','course','CourseClass','CourseClassTwo','code','test','appletlogin','ad','activity','master','Industry','Article','ThirdpartyLogin','comment','quiz','SocialStuding','SocialHelp','SocialMatch','work','JobGory','GetAppInfo','PressCard','Special','ShortVideo','SpecialType','agreement','PromptMsg','PublicActivity','PublicApply','member','PublicInfo','PublicEnter',"buy","Role"];
+                $filtrationArr = ['register','login','product','toppic'];
             }
             return !in_array($controller,$filtrationArr);
         }
@@ -201,14 +201,14 @@
             if($this->scene == 'admin'){
                 $res = model('AuthAdmin')->where('username|phone', $value)->find();
             }elseif($this->scene == 'app'){
-                $res = model('User')->where('username|phone', $value)->find();    
+                $res = model('User')->where('username|phone', $value)->find();
             }
             $res = empty($res) ? array() :$res->toArray();
             switch ($exist) {
                 /*********** 2+0 phone need no exist  ***********/
                 case 1:
                     if (!$res) {
-                        return ['status' => false, 'info'=> '用户不存在!'];
+                        return ['status' => false, 'info'=> '用户不存在!请先注册'];
                     }
                     break;
                 /*********** 2+1 phone need exist  ***********/

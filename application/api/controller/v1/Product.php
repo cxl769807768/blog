@@ -6,7 +6,7 @@ use app\api\Controller\Common;
 use think\Request;
 use think\Loader;
 
-class Vendor extends Common
+class Product extends Common
 {
     /**
      * 显示资源列表
@@ -16,17 +16,23 @@ class Vendor extends Common
     public function index()
     {
         if (strtolower($this->request->method()) == 'get') {
+
             $where = [];
             $order = 'id DSC';
             $status = $this->request->get('status', '');
             if ($status !== '') {
                 $where['status'] = ['=', intval($status)];
-                $order = '';
+
+            }
+            $tid = $this->request->get('tid', '');
+            if ($tid !== '') {
+                $where['tid'] = ['=', intval($tid)];
+
             }
             $name = $this->request->get('name', '');
             if (!empty($name)) {
                 $where['name'] = ['like', "%" . $name . "%"];
-                $order = '';
+
             }
             if(!in_array('admin',$this->admin_roles) && $this->scene == "admin"){
                 $where['role_id'] = $this->admin_roles[0];
@@ -34,12 +40,12 @@ class Vendor extends Common
             $phone = $this->request->get('phone', '');
             if (!empty($phone)) {
                 $where['phone'] = ['=', $phone];
-                $order = '';
+
             }
 
             $limit = $this->request->get('limit/d', 20);
             $page = $this->request->get('page/d', 1);
-            $lists = model('vendor')->where($where)
+            $lists = model('product')->where($where)
                 ->order($order)
                 ->page($page, $limit)->select()->toArray();
             foreach ($lists as $k => $v) {
@@ -53,9 +59,9 @@ class Vendor extends Common
 
             }
             $res = [];
-            $res["total"] = model('vendor')->where($where)->count();
+            $res["total"] = model('product')->where($where)->count();
             $res["list"] = $lists;
-            if (empty($res)) {
+            if (empty($res["list"])) {
                 $this->return_msg(0, '暂时没有数据');
             } else {
                 $this->return_msg(200, '获取成功', $res);
@@ -85,24 +91,27 @@ class Vendor extends Common
     {
         if (strtolower($this->request->method()) == 'post') {
             $data = $this->request->post();
-            $validate = Loader::validate('Vendor');
+            $validate = Loader::validate('product');
             if(!$validate->check($data)){
                 $this->return_msg(0,$validate->getError());
             }
+            if($this->scene == "admin"){
+                $data['role_id'] = in_array('admin',$this->admin_roles) ? 1 : $this->admin_roles[0];
+            }
 
-            $data['role_id'] = in_array('admin',$this->admin_roles) ? 1 : $this->admin_roles[0];
 
             $data['cover'] = str_replace($this->request->domain(), '', $data['cover']);
 
             $temp = [];
+            $data['slideshow'] = is_array($data['slideshow']) ? $data['slideshow'] : explode(',',$data['slideshow']);
             foreach ($data['slideshow'] as $key => $value) {
                 $temp[$key]['url'] = str_replace($this->request->domain(), '', $value);
-                $temp[$key]['mod'] = 'vendor_slideshow';
+                $temp[$key]['mod'] = 'product_slideshow';
             }
             $data['slideshow'] = serialize(array_column($temp,'url'));
-            $res = model('Vendor')->allowField(true)->save($data);
+            $res = model('product')->allowField(true)->save($data);
             if ($res) {
-                $insert_cover = model('ImgManage') -> save(['mod' => 'vendor_cover', 'url' => $data['cover']]);
+                $insert_cover = model('ImgManage') -> save(['mod' => 'product_cover', 'url' => $data['cover']]);
                 if (empty($insert_cover)) {
                     $this -> return_msg(0, '添加封面信息失败');
                 }
@@ -118,7 +127,7 @@ class Vendor extends Common
                     if (!empty($resssss)) {
                         foreach ($resssss[1] as $key => $value) {
                             $intr[$key]['url'] = str_replace($this->request->domain(), '', $value);
-                            $intr[$key]['mod'] = 'vendor_introduce';
+                            $intr[$key]['mod'] = 'product_introduce';
                         }
                         $insert_introduce = model('ImgManage') ->isUpdate(false)->saveAll($intr);
                         if (empty($insert_introduce)) {
@@ -148,7 +157,26 @@ class Vendor extends Common
      */
     public function read($id)
     {
-        //
+        if (strtolower($this->request->method()) == 'get') {
+            $list = Model('product')->where('id',$id)->find()->toArray();
+            $list['cover'] = !empty($list['cover']) ? $this->request->domain().$list['cover'] : '';
+
+            $list['slideshow'] = !empty($list['slideshow']) ? unserialize($list['slideshow']): '';
+            if(!empty($list['slideshow'])){
+                foreach ($list['slideshow'] as $key => $val) {
+                    $list['slideshow'][$key] = $this->request->domain().$val;
+                }
+            }
+
+
+            if(empty($list)){
+                $this->return_msg(0, '暂时没有数据');
+            }else{
+                $this->return_msg(200, '获取成功', $list);
+            }
+        } else {
+            $this -> return_msg(0, '请求方式不正确');
+        }
     }
 
     /**
@@ -173,24 +201,24 @@ class Vendor extends Common
     {
         if (strtolower($this->request->method()) == 'post') {
             $data = $this->request->post();
-            $validate = Loader::validate('Vendor');
+            $validate = Loader::validate('product');
             if(!$validate->check($data)){
                 $this->return_msg(0,$validate->getError());
             }
-            $old = model('Vendor')->where('id',$id)->find()->toArray();
+            $old = model('product')->where('id',$id)->find()->toArray();
             $data['cover'] = str_replace($this->request->domain(), '', $data['cover']);
 
             $temp = [];
             foreach ($data['slideshow'] as $key => $value) {
                 $temp[$key]['url'] = str_replace($this->request->domain(), '', $value);
-                $temp[$key]['mod'] = 'vendor_slideshow';
+                $temp[$key]['mod'] = 'product_slideshow';
             }
             $data['slideshow'] = serialize(array_column($temp,'url'));
-            $res = model('Vendor')->isUpdate(true)->allowField(true)->save($data);
+            $res = model('product')->isUpdate(true)->allowField(true)->save($data);
             if ($res) {
                 if($old['cover']!==$data['cover']){
-                    model('ImgManage')->where(['mod'=>'vendor_cover', 'url'=>$old['cover']])->delete();
-                    $insert_cover = model('ImgManage') -> save(['mod' => 'vendor_cover', 'url' => $data['cover']]);
+                    model('ImgManage')->where(['mod'=>'product_cover', 'url'=>$old['cover']])->delete();
+                    $insert_cover = model('ImgManage') -> save(['mod' => 'product_cover', 'url' => $data['cover']]);
                     if (empty($insert_cover)) {
                         $this -> return_msg(0, '添加封面信息失败');
                     }
@@ -201,7 +229,7 @@ class Vendor extends Common
                     $insert_slideshow = model('ImgManage') ->isUpdate(false)->saveAll($temp);
                     $oldSlideshow = unserialize($old['slideshow']);
                     foreach ($oldSlideshow as $key => $val){
-                        model('ImgManage')->where(['mod'=>'vendor_slideshow', 'url'=>$val])->delete();
+                        model('ImgManage')->where(['mod'=>'product_slideshow', 'url'=>$val])->delete();
                     }
                     if (empty($insert_slideshow)) {
                         $this -> return_msg(0, '添加图片管理轮播信息失败');
@@ -220,12 +248,12 @@ class Vendor extends Common
                         if (!empty($diff)) {
 
                             foreach ($shu_ress[1] as $key => $value) {
-                                model('ImgManage')->where(['mod'=>'vendor_introduce', 'url'=>str_replace($this->request->domain(), '', $value)])->delete();
+                                model('ImgManage')->where(['mod'=>'product_introduce', 'url'=>str_replace($this->request->domain(), '', $value)])->delete();
                             }
                             $intro = [];
                             foreach ($ress[1] as $key => $value) {  // 新增传递的信息
                                 $intro[$key]['url'] = str_replace($this->request->domain(), '', $value);
-                                $intro[$key]['mod'] = 'vendor_introduce';
+                                $intro[$key]['mod'] = 'product_introduce';
                             }
                             model('ImgManage')->isUpdate(false)->saveAll($intro);
                         }
@@ -233,7 +261,7 @@ class Vendor extends Common
                         $intro = [];
                         foreach ($ress[1] as $key => $value) {
                             $intro[$key]['url'] = $value;
-                            $intro[$key]['mod'] = 'vendor_introduce';
+                            $intro[$key]['mod'] = 'product_introduce';
                         }
                         model('ImgManage') ->isUpdate(false)->saveAll($intro);
                     }
@@ -259,14 +287,14 @@ class Vendor extends Common
     {
         if (strtolower($this->request->method()) == 'post') {
 
-            $old = model('Vendor')->where('id', $id)->find()->toArray();
-            $res = model('Vendor')->where('id', $id)->delete();
+            $old = model('product')->where('id', $id)->find()->toArray();
+            $res = model('product')->where('id', $id)->delete();
             if($res){
 
-                model('ImgManage')->where(['mod'=>'vendor_cover', 'url'=>$old["cover"]])->delete();
+                model('ImgManage')->where(['mod'=>'product_cover', 'url'=>$old["cover"]])->delete();
                 $oldSlideshow = unserialize($old['slideshow']);
                 foreach ($oldSlideshow as $key => $val){
-                    model('ImgManage')->where(['mod'=>'vendor_slideshow', 'url'=>$val])->delete();
+                    model('ImgManage')->where(['mod'=>'product_slideshow', 'url'=>$val])->delete();
                 }
                 // 删除数据库中的介绍的图片信息
                 if (!empty($old['introduce'])) {
@@ -276,7 +304,7 @@ class Vendor extends Common
                     if (!empty($shu_ress)) {
                         foreach ($shu_ress[1] as $key => $value) {
 
-                            model('ImgManage')->where(['mod'=>'vendor_introduce', 'url'=>str_replace($this->request->domain(), '', $value)])->delete();
+                            model('ImgManage')->where(['mod'=>'product_introduce', 'url'=>str_replace($this->request->domain(), '', $value)])->delete();
                         }
                     }
 
@@ -285,6 +313,21 @@ class Vendor extends Common
                 $this -> return_msg(200, '删除信息成功');
 
             }
+        }else{
+            $this->return_msg(0, '请求方式不正确');
+        }
+    }
+    public function deleteImage(){
+        if (strtolower($this->request->method()) == 'post') {
+            $data = $this->request->post();
+            $delUrl = str_replace($this->request->domain(), '', $data['url']);
+            $del = unlink(PUBLIC_PATH.$delUrl);
+            if(!empty($del)){
+                $this -> return_msg(200, '删除图片成功');
+            }else{
+                $this -> return_msg(200, '删除图片失败');
+            }
+
         }else{
             $this->return_msg(0, '请求方式不正确');
         }
