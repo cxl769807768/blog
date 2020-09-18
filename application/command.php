@@ -12,5 +12,6 @@
 return [
 	'app\index\command\Test',
 	'app\index\command\Websoket',
+    'app\index\command\Consumer',
 
 ];

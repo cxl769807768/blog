@@ -90,7 +90,7 @@ class Test extends Common
     public function index()
     {
         try{
-
+            echo 123;exit;
             // $a = null;
             // var_dump(!$a);exit;
             // var_dump(empty($a));exit;

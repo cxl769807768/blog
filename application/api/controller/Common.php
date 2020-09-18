@@ -26,7 +26,7 @@
         public function __construct()
         {
 
-            //parent::__construct();
+//            parent::__construct();
             $this->request    = Request::instance();
             $this->isAuthorized = $this->request->header('authorized') && strlen($this->request->header('authorized')) == 32;
             $this->authorized   = $this->isAuthorized ? $this->request->header('authorized') : NULL;
@@ -101,7 +101,7 @@
             if($this->scene == 'admin'){
                 $filtrationArr = ['register', 'login'];
             }elseif($this->scene == 'app'){
-                $filtrationArr = ['register','login','product','toppic'];
+                $filtrationArr = ['register','login','product','toppic','Queue'];
             }
             return !in_array($controller,$filtrationArr);
         }
